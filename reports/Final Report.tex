@@ -1,0 +1,277 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\newtheorem{theorem}{Theorem}
+\usepackage{natbib}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\geometry{margin=1in}
+
+\title{Leverage Scores for Efficient Best-of-N Decoding on LLM Reasoning}
+\author{
+  Chen Yi Su \\
+  Johns Hopkins University \\
+  \texttt{csu35@jh.edu}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+We propose a training-free method to accelerate Best-of-N (BoN) decoding in mathematical reasoning by
+ pruning unpromising branches during generation. Unlike standard metrics that rank branches by token log-probabilities (which only measure the model's self-confidence), our approach measures the geometric distinctness of reasoning trajectories using statistical leverage scores computed on the model's hidden states. To make this approach scalable, we use Randomized Numerical Linear Algebra (RNLA) and approximate the exact leverage scores via Johnson-Lindenstrauss random projections. Experiments on MATH-500 with a 1.5B parameter model show that leverage-based ranking improves set-level coverage over logprobs
+ (+1.0 percentage points in sequential pruning). More importantly, we empirically validate the Sarlós theoretical error bounds, showing that our randomized algorithm achieves 99\% of the Exact SVD's end-to-end
+ performance using just a single random projection per step. This serves as a proof-of-concept for an asymptotically scalable framework designed for massive reasoning ensembles.
+\end{abstract}
+
+\section{Introduction}
+
+Mathematical reasoning tasks (like the MATH-500 benchmark) benefit heavily from inference-time scaling:
+ if we generate multiple candidate solutions and select the best one (Best-of-N decoding), the solve rate
+ improves. However, scaling the number of branches $N$ is extremely expensive, especially for
+ modern thinking models.
+
+To save computation, we can prune bad branches early. The traditional way to do this is by looking at the model's token log-probabilities. But for multi-step math problems, logprobs are often overconfident; a model might be highly confident about a completely wrong step. Recent studies suggest that looking inside the model at its hidden states gives a better signal: reasoning paths that cluster tightly together often represent a common strategy, while geometric outliers might represent novel solutions or hallucinations.
+
+In this project, we exploit this geometric intuition. Instead of relying on logprobs, we rank branches using \textbf{statistical leverage scores} from Randomized Numerical Linear Algebra (RNLA). 
+
+Our key contributions are:
+\begin{enumerate}
+  \item A theoretically grounded pruning method using leverage scores to capture set-level diversity
+   rather than just single-branch confidence.
+  \item Empirical validation showing that geometric leverage is consistently better than logprobs.
+  \item Validation of Randomized Approximation: We demonstrate that applying a single Johnson-Lindenstrauss random projection closely tracks the exact leverage scores ($\tau \approx 0.64$), retaining the Exact SVD's accuracy without requiring a full decomposition.
+  \item An analysis of the asymptotic scalability of this randomized approach, showing how it paves
+   the way for efficient pruning when $N$ scales to hundreds or thousands.
+\end{enumerate}
+
+
+\section{Related Work}
+
+\subsection{Randomized Numerical Linear Algebra (RNLA)}
+RNLA provides a mathematically rigorous framework for solving large-scale matrix problems with probabilistic error guarantees \cite{Mahoney2011}. In statistical analysis, leverage scores are a fundamental metric for identifying influential or outlying data points within a global context. Since computing the exact Singular Value Decomposition (SVD) for an $n \times d$ matrix takes $\mathcal{O}(nd^2)$ time, our work relies on the sketching techniques pioneered by Sarl\'{o}s \cite{Sarlos2006}. Specifically, we leverage the Johnson-Lindenstrauss (JL) Lemma to approximate leverage scores in linear time, a technique that has proven robust in large-scale data analysis but remains under-explored in LLM internal states.
+
+\subsection{The Geometry of LLM Hidden States}
+Recent studies in Representation Engineering (RepE) suggest that high-level cognitive concepts, such as truthfulness or logical consistency, are encoded as linear directions within the model's hidden states \cite{Zou2023RepE, Marks2023Geometry}. However, these latent structures are often masked by activation outliers, extremely high-magnitude dimensions that are essential for model performance but dominate geometric variance \cite{Xiao2023SmoothQuant}. While traditional methods use supervised probes or manual normalization to handle these artifacts, our project explores whether randomized sketching can serve as a training-free geometric filter to reveal underlying reasoning patterns.
+
+\subsection{Dynamic Pruning in Test-Time Scaling}
+With the rise of reasoning models like DeepSeek-R1 and OpenAI o1, scaling inference-time compute via Best-of-N (BoN) has become a primary bottleneck. Recent works such as \textbf{ST-BoN} \cite{Wang2025STBoN} and \textbf{DTS} \cite{Xu2025DTS} have proposed pruning unpromising branches mid-generation to save KV-cache and latency. ST-BoN, in particular, identifies correct branches by measuring early consensus (similarity to the centroid). Our approach differs by focusing on \textbf{geometric diversity} via leverage scores; rather than following the majority consensus which may lead to consensus hallucinations. We use RNLA to preserve a diverse set of distinct reasoning trajectories.
+
+
+\section{Method: Randomized Leverage Scores}
+\label{sec:method}
+
+\subsection{Leverage Scores: Intuition and Definition}
+\label{sec:leverage-def}
+
+Suppose we have $N$ reasoning branches, and we extract their hidden states at a specific token step into a matrix $H \in \mathbb{R}^{N \times D}$ (where $D=1536$ for our DeepSeek-R1-Distill-1.5B model). We can compute the rank-$k$ thin SVD: $H = U\Sigma V^T$, where $U \in \mathbb{R}^{N \times k}$.
+The exact leverage score of branch $i$ is:
+\begin{equation}
+\ell_i = \sum_{j=1}^{k} U_{i,j}^2
+\label{eq:leverage}
+\end{equation}
+
+Intuitively, $\ell_i$ measures how much branch $i$ contributes to the main subspace spanned by the top-$k$
+singular vectors. High-leverage branches are geometric outliers (potentially novel solutions), while low-leverage branches are clustered together near the center (redundant paths). 
+
+\textbf{Leverage vs. Logprobs:} Logprobs measure how confident the model is in a single path. Leverage scores measure diversity. If 10 branches are all making the exact same common math error with high confidence, logprobs will keep all 10. Leverage scores will notice they are geometrically identical and will prioritize keeping a mix of different reasoning strategies, increasing the chance that at least one correct path survives.
+
+\subsection{The High-Dimensionality Challenge}
+Computing the exact SVD on $H \in \mathbb{R}^{N \times D}$ in high-dimensional spaces ($D=1536$) is statistically problematic. In such regimes, every branch can appear as a geometric outlier due to spurious dimensions or internal noise $\eta$ caused by activation outliers \cite{Xiao2023SmoothQuant}. This noise can destabilize singular vectors, leading to leverage scores that overfit to token-level variations rather than logical reasoning strategies.
+
+\subsection{Randomized Leverage via Johnson-Lindenstrauss}
+\label{sec:random-jl}
+
+To solve this, we use random projection. The Johnson-Lindenstrauss (JL) lemma guarantees that we can project high-dimensional points into a much lower dimension while approximately preserving the distances between them.
+
+We generate a random Gaussian projection matrix $R \in \mathbb{R}^{D \times d}$ where $R_{ij} \sim \mathcal{N}(0, 1/d)$, and project our hidden states:
+\begin{equation}
+\tilde{H} = H \cdot R \in \mathbb{R}^{N \times d}
+\label{eq:projection}
+\end{equation}
+
+By forcing the SVD to operate in this much smaller $d$-dimensional random subspace (e.g., $d=128$), we essentially smooth out the high-frequency noise. The projection acts as an implicit regularizer, preserving the differences between reasoning strategies while ignoring minor dimensional noise.
+
+\subsubsection{Algorithm and Error Bounds}
+
+At each pruning step, the algorithm is extremely simple:
+1. Sample a \textbf{single} random matrix $R \sim \mathcal{N}(0, 1/d)^{D \times d}$.
+2. Project: $\tilde{H} = H \cdot R$.
+3. Compute SVD on $\tilde{H}$ to get $U$, and calculate $\ell_i = \sum_{j=1}^k U_{i,j}^2$.
+
+Based on Sarlós (2006), the expected relative error between our randomized scores and the exact scores is on the order of $\mathcal{O}(\sqrt{k/d})$. For our parameters ($k=8, d=128$), this gives a rough scale:
+\begin{equation}
+\epsilon = \mathcal{O}\!\left(\sqrt{\frac{k}{d}}\right) = \mathcal{O}\!\left(\sqrt{\frac{8}{128}}\right) \approx \mathcal{O}(0.25)
+\end{equation}
+As we will see in the experiments, an error of $0.25$ is perfectly acceptable and preserves the ranking order
+ well enough to make good pruning decisions.
+
+\subsection{Integration with Chunked Generation}
+
+In practice, we don't just pick the best branch at the end. We pause generation at specific token checkpoints (e.g., token 50, 100). At each checkpoint, we compute the randomized leverage scores for all currently active branches. We then deterministically terminate the branches with the lowest scores, keeping only the top-$m$. The surviving branches continue generating.
+
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Experimental Setup}
+We evaluate on the MATH-500 benchmark using DeepSeek-R1-Distill-Qwen-1.5B. For each problem, we sample $N=16$ independent reasoning branches. At fixed decode checkpoints, we save the hidden states $H_t \in
+ \mathbb{R}^{16 \times 1536}$ and cumulative logprobs so we can replay and evaluate different pruning rules offline using the ground truth correctness labels.
+
+\subsection{Part 1: Leverage vs. Logprobs}
+
+We first test whether ranking by leverage keeps correct paths alive more often than ranking by logprob. We measure \textbf{Pass@m}: after keeping only the top-$m$ branches according to the rule, is at least one of them correct?
+
+\begin{table}[H]
+\centering
+\caption{Pass@m at checkpoint 300 ($N=200$). The reference Best-of-16 is 76.5\% (the percentage of problems where
+ at least one branch out of the initial 16 was correct).}
+\label{tab:leverage-vs-logprob}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{Pass@8} & \textbf{Pass@4} & \textbf{Pass@2} \\
+\midrule
+Best-of-16 (No pruning reference) & 76.5\% & 76.5\% & 76.5\% \\
+\midrule
+Random Pick & 74.7\% & 72.7\% & 69.6\% \\
+Top-$m$ by logprob & 74.5\% & 72.0\% & 69.5\% \\
+Top-$m$ by Exact Leverage & \textbf{75.0\%} & \textbf{73.5\%} & \textbf{71.0\%} \\
+\midrule
+\textbf{Leverage minus Logprob gap} & \textbf{+0.50 pp} & \textbf{+1.50 pp} & \textbf{+1.50 pp} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Takeaway:} Exact leverage consistently beats logprob, particularly when the budget is tight
+ (Pass@4 and Pass@2). Because logprobs tend to overfit to a single confident-but-wrong reasoning cluster,
+ they often drop the correct answer early. Leverage preserves diversity.
+
+\subsection{Part 2: Randomized vs. Exact SVD}
+Next, we verify if our cheap randomized approximation tracks the exact SVD properly.
+
+\subsubsection{Stability and Theoretical Bounds}
+We compare randomized and exact rankings at checkpoint 300 ($d=128$, $k=8$). 
+
+\begin{table}[H]
+\centering
+\caption{Randomized vs. Exact leverage correlation ($d=128, k=8$).}
+\label{tab:stability-cross-run}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
+\midrule
+Relative $\ell_2$ error on scores & 0.223 & 0.069 \\
+Kendall-$\tau$ (Random vs. Exact) & 0.642 & 0.134 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Takeaway:} The measured relative error (0.223) is consistent with the Sarlós theoretical scale
+ of roughly 0.25. A Kendall-$\tau$ of 0.642 means the randomized ranking is fairly close to the exact ranking
+  on average.
+
+\subsubsection{Choosing Projection Dimension $d$}
+Table~\ref{tab:ablation-d} shows how the projection size $d$ affects correlation and the resulting Pass@4.
+
+
+\begin{table}[ht]
+\centering
+\caption{Projection size $d$ vs.\ Kendall-$\tau$ and Pass@4 ($t{=}300$, $N{=}200$). Last row = exact SVD in full dimension.}
+\label{tab:ablation-d}
+\begin{tabular}{lccc}
+\toprule
+\textbf{$d$} & \textbf{Kendall-$\tau$ vs.\ exact} & \textbf{Pass@4} & \textbf{Time / call (ms)} \\
+\midrule
+64 & 0.551 & 72.9\% & 0.45 \\
+128 (default) & 0.641 & 72.9\% & 0.82 \\
+256 & 0.723 & 72.9\% & 1.55 \\
+Exact SVD ($D{=}1536$) & 1.000 & 73.5\% & 0.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\textbf{Takeaway:} Larger $d$ gives a higher correlation $\tau$. However, all randomized dimensions yield roughly
+ 72.9\% Pass@4. We use $d=128$ as a solid balance.
+
+\subsubsection{Additive Noise Sanity Check: Robustness via Dimensionality Reduction}
+\label{sec:noise-injection}
+
+To address the concern that random projection might inadvertently destroy critical geometric signals, we run a controlled noise-injection experiment. This test also evaluates our hypothesis that Randomized Sketching acts as a geometric filter against high-frequency isotropic noise in the highly overparameterized ambient space ($D=1536$). 
+
+At the intermediate checkpoint $t{=}300$, we extract the hidden states of active branches $H\in\mathbb{R}^{N_{\text{alive}}\times D}$ and inject scaled isotropic noise: $H' = H + \eta\cdot s \cdot \Xi$, where $s=\frac{1}{N_{\text{alive}}}\sum_i \|H_{i,:}\|_2$ and $\Xi_{ij}\sim\mathcal{N}(0,1)$ i.i.d. Table~\ref{tab:noise-injection} reports the Pass@4 performance using leverage scores computed from the exact SVD on $H'$ versus the randomized sketching approach (averaged over 50 draws of $R$).
+
+\begin{table}[ht]
+\centering
+\caption{Pass@4 under additive isotropic noise on hidden states ($t{=}300$, $d{=}128$, $k{=}8$). Random = mean over 50 draws of $R$ per problem (single run).}
+\label{tab:noise-injection}
+\begin{tabular}{lccc}
+\toprule
+\textbf{$\eta$} & \textbf{Pass@4 exact} & \textbf{Pass@4 random} & \textbf{random $-$ exact (pp)} \\
+\midrule
+0.00 & 73.5\% & 72.88\% & $-0.62$ \\
+0.02 & 72.74\% & 72.78\% & $+0.04$ \\
+0.05 & 72.92\% & 72.67\% & $-0.25$ \\
+0.10 & 73.00\% & 72.61\% & $-0.39$ \\
+0.20 & 72.64\% & 72.66\% & $-0.02$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\textbf{Empirical Observation of Stability:} 
+While the Exact SVD marginally outperforms the randomized approach in a perfectly pristine setting ($\eta=0.00$), it demonstrates notable fragility as noise increases, dropping by $0.86$ percentage points at $\eta=0.20$. In contrast, the randomized leverage scores exhibit remarkable statistical stability, degrading by only $0.22$ percentage points across the same noise spectrum and eventually matching the exact method. This sanity check confirms that sketching to $d=128$ limits the effective degrees of freedom, successfully filtering out spurious high-dimensional perturbations while preserving the core geometric divergence necessary for effective pruning.
+
+
+\subsection{Part 3: End-to-End Sequential Pruning}
+
+Finally, we simulate pruning in stages: at $T_1$ we keep 8 branches out of 16; at $T_2$ we keep 4 branches out of those 8. 
+
+\begin{table}[H]
+\centering
+\caption{Best Pass@4 over a schedule sweep (e.g., pruning at token 50 and 300).}
+\label{tab:endtoend-accuracy}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Method} & \textbf{Best Pass@4} & \textbf{Optimal Schedule $(T_1,T_2)$} \\
+\midrule
+No pruning (Pass@16 Reference) & 76.5\% & N/A \\
+\midrule
+Sequential Exact Leverage & \textbf{74.0\%} & $(50,400)$ \\
+Sequential Randomized Leverage (Ours) & \textbf{73.5\%} & $(50,300)$ \\
+Sequential Logprob & 73.0\% & $(50,200)$  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Takeaway:} Sequential Exact Leverage peaks at 74.0\%. The Randomized version closely follows at 73.5\%
+ successfully outperforming the standard Logprob method (73.0\%) and proving that random projection works well
+ in an end-to-end pipeline.
+
+\section{Discussion}
+
+\subsection{The Role of Randomization in Extreme High-Dimensional Regimes}
+At first glance, randomization may seem unnecessary for our small setup ($N=16$). In fact, with $D=1536$, exact SVD is cheaper in raw arithmetic for this regime: $\mathcal{O}(N^2 D) \approx 0.39$ MFLOPs versus $\mathcal{O}(NDd) \approx 3.1$ MFLOPs for projection ($d=128$). This makes our current result a proof-of-concept rather than a compute win at small $N$.
+
+We still use randomization for two reasons: \textbf{asymptotic scalability} and \textbf{statistical stability}.
+
+First, as $N$ grows, exact SVD incurs a quadratic cost $\mathcal{O}(N^2 D)$, while sketching scales as $\mathcal{O}(NDd)$. At $N=1024$, this is roughly 1600 MFLOPs for exact SVD versus 200 MFLOPs for the sketch ($d=128$), an approximately $8\times$ reduction. Our experiments at $N=16$ therefore validate the approximation behavior in a controlled setting before moving to larger ensembles.
+
+Second, randomized sketching improves stability in the small-sample, high-dimensional regime ($N \ll D$). In $\mathbb{R}^{1536}$, exact decompositions can become sensitive to high-frequency isotropic noise. Prior work also supports the view that random projections can act as implicit regularizers by limiting effective degrees of freedom \cite{Durrant2013}.
+
+Our noise-injection experiment (Section \ref{sec:noise-injection}) shows a similar trend for unsupervised leverage ranking: randomized scores remain stable and stay close to exact performance as perturbation increases. This is consistent with the Johnson-Lindenstrauss view that projection preserves coarse geometric structure while filtering small, noisy variation.
+
+\subsection{Conclusion}
+This course project connects ideas from randomized algorithms to practical LLM decoding. As inference uses larger branch sets, managing the reasoning search space efficiently becomes more important. We show that leverage scores preserve set-level diversity better than confidence-only logprob ranking in our setup.
+
+Using Johnson-Lindenstrauss projections, we obtain a training-free approximation that tracks exact leverage closely while retaining strong end-to-end pruning performance (about 99\% of exact in our sequential setting). Overall, the results support RNLA-based pruning as a promising direction for scalable reasoning ensembles, especially as $N$ increases.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

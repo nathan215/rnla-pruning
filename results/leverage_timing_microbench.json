@@ -1,0 +1,42 @@
+{
+  "mode": "batch",
+  "timing_repeats": 50,
+  "timing_warmup": 3,
+  "batches": 300,
+  "n": 16,
+  "hidden": 1536,
+  "k": 8,
+  "ms_mean_per_call": {
+    "exact": 0.328465920034796,
+    "d64": 0.4450063999587049,
+    "d128": 0.815781706556057,
+    "d256": 1.5494033666327596
+  },
+  "ms_std_across_batches": {
+    "exact": 0.010294002421175119,
+    "d64": 0.017570370439156453,
+    "d128": 0.036744712516690904,
+    "d256": 0.024471756737878277
+  },
+  "flop_sketch": {
+    "d64": {
+      "approx_gemm_N_D_d": 3145728.0,
+      "approx_svd_N_d2": 131072.0,
+      "approx_svd_N2_D": 786432.0,
+      "approx_random_total": 3276800.0
+    },
+    "d128": {
+      "approx_gemm_N_D_d": 6291456.0,
+      "approx_svd_N_d2": 524288.0,
+      "approx_svd_N2_D": 786432.0,
+      "approx_random_total": 6815744.0
+    },
+    "d256": {
+      "approx_gemm_N_D_d": 12582912.0,
+      "approx_svd_N_d2": 2097152.0,
+      "approx_svd_N2_D": 786432.0,
+      "approx_random_total": 14680064.0
+    }
+  },
+  "torch_num_threads": 1
+}

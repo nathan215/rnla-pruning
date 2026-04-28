@@ -1,0 +1,23 @@
+{
+  "checkpoint(s)": [
+    300
+  ],
+  "step1_checkpoints_flag": false,
+  "k": 8,
+  "d_fixed_table2": 128,
+  "d_list_table3": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "num_random_draws_table2": 100,
+  "num_draws_tau_ablation": 20,
+  "num_pass_draws_table3": 50,
+  "limit": 200,
+  "mode": "ablation"
+}

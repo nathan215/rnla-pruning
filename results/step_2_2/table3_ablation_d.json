@@ -1,0 +1,199 @@
+{
+  "rows": [
+    {
+      "d": 8,
+      "label": "d=8",
+      "mean_kendall_tau_vs_exact": 0.2370666666666667,
+      "std_kendall_tau_vs_exact": 0.1814098521151606,
+      "oracle_pass_at_4_mean": 0.7243,
+      "policy_pass_at_4_mean": 0.7243,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 0.20224372000375296
+    },
+    {
+      "d": 16,
+      "label": "d=16",
+      "mean_kendall_tau_vs_exact": 0.3482916666666666,
+      "std_kendall_tau_vs_exact": 0.17045160094258102,
+      "oracle_pass_at_4_mean": 0.7249000000000001,
+      "policy_pass_at_4_mean": 0.7249000000000001,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 0.26925576000357976
+    },
+    {
+      "d": 32,
+      "label": "d=32",
+      "mean_kendall_tau_vs_exact": 0.4541833333333333,
+      "std_kendall_tau_vs_exact": 0.15820872201690467,
+      "oracle_pass_at_4_mean": 0.727,
+      "policy_pass_at_4_mean": 0.727,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 0.48315432002127634
+    },
+    {
+      "d": 64,
+      "label": "d=64",
+      "mean_kendall_tau_vs_exact": 0.5512028258243606,
+      "std_kendall_tau_vs_exact": 0.14624746762719204,
+      "oracle_pass_at_4_mean": 0.7289,
+      "policy_pass_at_4_mean": 0.7289,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 0.733251850013039
+    },
+    {
+      "d": 128,
+      "label": "d=128",
+      "mean_kendall_tau_vs_exact": 0.6410999999999999,
+      "std_kendall_tau_vs_exact": 0.13400232585046176,
+      "oracle_pass_at_4_mean": 0.7293999999999999,
+      "policy_pass_at_4_mean": 0.7293999999999999,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 1.2848378899943782
+    },
+    {
+      "d": 256,
+      "label": "d=256",
+      "mean_kendall_tau_vs_exact": 0.7232541666666668,
+      "std_kendall_tau_vs_exact": 0.12147705251690313,
+      "oracle_pass_at_4_mean": 0.7286,
+      "policy_pass_at_4_mean": 0.7286,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 3.3008465400343994
+    },
+    {
+      "d": 512,
+      "label": "d=512",
+      "mean_kendall_tau_vs_exact": 0.7870041666666667,
+      "std_kendall_tau_vs_exact": 0.10967912788561915,
+      "oracle_pass_at_4_mean": 0.7291,
+      "policy_pass_at_4_mean": 0.7291,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 4.244062079983996
+    },
+    {
+      "d": 1024,
+      "label": "d=1024",
+      "mean_kendall_tau_vs_exact": 0.8371124999999999,
+      "std_kendall_tau_vs_exact": 0.09859334893825805,
+      "oracle_pass_at_4_mean": 0.7298,
+      "policy_pass_at_4_mean": 0.7298,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 8.072536039969417
+    },
+    {
+      "d": null,
+      "label": "Exact SVD (D=1536)",
+      "mean_kendall_tau_vs_exact": 1.0,
+      "std_kendall_tau_vs_exact": 0.0,
+      "oracle_pass_at_4_mean": 0.735,
+      "policy_pass_at_4_mean": 0.735,
+      "oracle_pass_at_4_n": 200,
+      "mean_ms_per_leverage_call": 1.1589110999833792
+    }
+  ],
+  "checkpoints": [
+    300
+  ],
+  "k": 8,
+  "num_pass_draws": 50,
+  "per_checkpoint": [
+    {
+      "checkpoint": 300,
+      "rows": [
+        {
+          "d": 8,
+          "label": "d=8",
+          "mean_kendall_tau_vs_exact": 0.2370666666666667,
+          "std_kendall_tau_vs_exact": 0.1814098521151606,
+          "oracle_pass_at_4_mean": 0.7243,
+          "policy_pass_at_4_mean": 0.7243,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 0.20224372000375296
+        },
+        {
+          "d": 16,
+          "label": "d=16",
+          "mean_kendall_tau_vs_exact": 0.3482916666666666,
+          "std_kendall_tau_vs_exact": 0.17045160094258102,
+          "oracle_pass_at_4_mean": 0.7249000000000001,
+          "policy_pass_at_4_mean": 0.7249000000000001,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 0.26925576000357976
+        },
+        {
+          "d": 32,
+          "label": "d=32",
+          "mean_kendall_tau_vs_exact": 0.4541833333333333,
+          "std_kendall_tau_vs_exact": 0.15820872201690467,
+          "oracle_pass_at_4_mean": 0.727,
+          "policy_pass_at_4_mean": 0.727,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 0.48315432002127634
+        },
+        {
+          "d": 64,
+          "label": "d=64",
+          "mean_kendall_tau_vs_exact": 0.5512028258243606,
+          "std_kendall_tau_vs_exact": 0.14624746762719204,
+          "oracle_pass_at_4_mean": 0.7289,
+          "policy_pass_at_4_mean": 0.7289,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 0.733251850013039
+        },
+        {
+          "d": 128,
+          "label": "d=128",
+          "mean_kendall_tau_vs_exact": 0.6410999999999999,
+          "std_kendall_tau_vs_exact": 0.13400232585046176,
+          "oracle_pass_at_4_mean": 0.7293999999999999,
+          "policy_pass_at_4_mean": 0.7293999999999999,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 1.2848378899943782
+        },
+        {
+          "d": 256,
+          "label": "d=256",
+          "mean_kendall_tau_vs_exact": 0.7232541666666668,
+          "std_kendall_tau_vs_exact": 0.12147705251690313,
+          "oracle_pass_at_4_mean": 0.7286,
+          "policy_pass_at_4_mean": 0.7286,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 3.3008465400343994
+        },
+        {
+          "d": 512,
+          "label": "d=512",
+          "mean_kendall_tau_vs_exact": 0.7870041666666667,
+          "std_kendall_tau_vs_exact": 0.10967912788561915,
+          "oracle_pass_at_4_mean": 0.7291,
+          "policy_pass_at_4_mean": 0.7291,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 4.244062079983996
+        },
+        {
+          "d": 1024,
+          "label": "d=1024",
+          "mean_kendall_tau_vs_exact": 0.8371124999999999,
+          "std_kendall_tau_vs_exact": 0.09859334893825805,
+          "oracle_pass_at_4_mean": 0.7298,
+          "policy_pass_at_4_mean": 0.7298,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 8.072536039969417
+        },
+        {
+          "d": null,
+          "label": "Exact SVD (D=1536)",
+          "mean_kendall_tau_vs_exact": 1.0,
+          "std_kendall_tau_vs_exact": 0.0,
+          "oracle_pass_at_4_mean": 0.735,
+          "policy_pass_at_4_mean": 0.735,
+          "oracle_pass_at_4_n": 200,
+          "mean_ms_per_leverage_call": 1.1589110999833792
+        }
+      ]
+    }
+  ],
+  "omniscient_pass_at_4_mean": 0.765,
+  "omniscient_pass_at_4_n": 200,
+  "note": "omniscient_pass_at_4_mean: policy-free ceiling (any correct among alive at this checkpoint). oracle_pass_at_4_mean / policy_pass_at_4_mean: same value \u2014 randomized or exact leverage ranking (policy retention Pass@4)."
+}

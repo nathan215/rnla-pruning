@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "note": "Generated after extracting 16 Google Drive split zips (001+002 per batch) into results/step_1_oracle_b0 … b7.",
+  "batches": [
+    "step_1_oracle_b0",
+    "step_1_oracle_b1",
+    "step_1_oracle_b2",
+    "step_1_oracle_b3",
+    "step_1_oracle_b4",
+    "step_1_oracle_b5",
+    "step_1_oracle_b6",
+    "step_1_oracle_b7"
+  ],
+  "per_batch_problem_folders": 25,
+  "unique_dataset_indices_count": 200,
+  "expected_indices_0_199": "complete",
+  "duplicate_indices": [],
+  "validation": "run: python experiments/validate_step1_oracle.py --out_dir results/step_1_oracle_bN --expected_problems 25 for each N in 0..7; all exited 0",
+  "extract_script": "scripts/extract_step1_gdrive_zips.py"
+}

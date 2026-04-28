@@ -1,0 +1,43 @@
+{
+  "d": 128,
+  "k": 8,
+  "num_random_draws": 100,
+  "checkpoints": [
+    300
+  ],
+  "n_samples_rel_err": 20000,
+  "n_samples_tau_re": 20000,
+  "n_samples_tau_rr": 20000,
+  "relative_l2_error": {
+    "mean": 0.22256377616887227,
+    "std": 0.0685570055829541
+  },
+  "kendall_tau_random_vs_exact": {
+    "mean": 0.6423300000000001,
+    "std": 0.13431463472012273
+  },
+  "kendall_tau_random_vs_random": {
+    "mean": 0.5547350000000001,
+    "std": 0.1472060037932481
+  },
+  "per_checkpoint": [
+    {
+      "checkpoint": 300,
+      "n_samples_rel_err": 20000,
+      "n_samples_tau_re": 20000,
+      "n_samples_tau_rr": 20000,
+      "relative_l2_error": {
+        "mean": 0.22256377616887227,
+        "std": 0.0685570055829541
+      },
+      "kendall_tau_random_vs_exact": {
+        "mean": 0.6423300000000001,
+        "std": 0.13431463472012273
+      },
+      "kendall_tau_random_vs_random": {
+        "mean": 0.5547350000000001,
+        "std": 0.1472060037932481
+      }
+    }
+  ]
+}

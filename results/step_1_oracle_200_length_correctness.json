@@ -1,0 +1,86 @@
+{
+  "definitions": {
+    "length_tokens": "valid_lengths[b] \u2014 generated tokens for branch b.",
+    "truncated": "finished_at[b] < 0 (no EOS observed). Generation hit the step cap without finishing; treat as unreliable / wrong for policy analysis.",
+    "correct": "answers_equal(branch_text, ref, match_mode='boxed_only')."
+  },
+  "match_mode": "boxed_only",
+  "n_branch_slots_analyzed": 3200,
+  "n_problems_with_reference": 200,
+  "counts": {
+    "correct_branches": 2057,
+    "wrong_branches": 1143,
+    "truncated_branches": 549,
+    "truncated_among_wrong": 549,
+    "fraction_truncated_of_all_branches": 0.1715625,
+    "fraction_truncated_of_wrong_only": 0.48031496062992124,
+    "fraction_correct": 0.6428125
+  },
+  "cross_tab_correct_vs_truncated": {
+    "(correct, truncated)": 18,
+    "(correct, not_truncated)": 2039,
+    "(wrong, truncated)": 549,
+    "(wrong, not_truncated)": 594
+  },
+  "length_percentiles": {
+    "correct_branches": {
+      "min": 394.0,
+      "p5": 1013.6,
+      "p25": 1519.0,
+      "p50": 2197.0,
+      "p75": 3570.0,
+      "p95": 7001.0,
+      "max": 8192.0,
+      "mean": 2825.0520175012152
+    },
+    "wrong_branches_finished": {
+      "min": 471.0,
+      "p5": 1104.4,
+      "p25": 1730.0,
+      "p50": 2651.0,
+      "p75": 4123.0,
+      "p95": 7043.1,
+      "max": 8191.0,
+      "mean": 3155.39898989899
+    },
+    "wrong_branches_truncated": {
+      "min": 8192.0,
+      "p5": 8192.0,
+      "p25": 8192.0,
+      "p50": 8192.0,
+      "p75": 8192.0,
+      "p95": 8192.0,
+      "max": 8192.0,
+      "mean": 8192.0
+    }
+  },
+  "length_histograms": {
+    "correct_branches": {
+      "0-512": 1,
+      "512-1024": 109,
+      "1024-2048": 825,
+      "2048-4096": 719,
+      "4096-8192": 385,
+      "8192-10000": 18
+    },
+    "wrong_branches_finished": {
+      "0-512": 1,
+      "512-1024": 12,
+      "1024-2048": 190,
+      "2048-4096": 240,
+      "4096-8192": 151,
+      "8192-10000": 0
+    },
+    "wrong_branches_truncated": {
+      "0-512": 0,
+      "512-1024": 0,
+      "1024-2048": 0,
+      "2048-4096": 0,
+      "4096-8192": 0,
+      "8192-10000": 549
+    }
+  },
+  "note_correct_truncated": "Branches marked correct but truncated: 18 (unusual; possible edge case or grading vs partial output).",
+  "missing_or_failed_loads": [],
+  "output_path": "C:\\Users\\natha\\OneDrive - Johns Hopkins\\RA Project\\results\\step_1_oracle_200_length_correctness.json"
+}

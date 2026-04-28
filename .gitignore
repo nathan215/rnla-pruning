@@ -1,0 +1,38 @@
+# Python cache and local environment
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+*.log
+.ipynb_checkpoints/
+
+# Local model cache and downloaded weights
+models/cache/
+
+# Generated experiment outputs
+results/step_1_oracle/
+results/step_1_oracle_b*/
+results/*.zip
+results/*_branch_correct.json
+results/**/progress.json
+results/step_2_2_checkpoint_sweep/
+results/plots/
+
+# Local editor/runtime files
+.DS_Store
+Thumbs.db
+.cursor/
+
+# LaTeX build artifacts (keep .tex sources)
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc

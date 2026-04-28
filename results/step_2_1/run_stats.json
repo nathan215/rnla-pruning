@@ -1,0 +1,36 @@
+{
+  "skip_stats": {
+    "missing_pt": 0,
+    "missing_cp": 0,
+    "no_alive": 503
+  },
+  "n_raw_rows": 49552,
+  "checkpoints": [
+    50,
+    100,
+    150,
+    200,
+    250,
+    300,
+    400,
+    500,
+    750,
+    1000,
+    1500,
+    2000,
+    3000,
+    4000,
+    5000,
+    6000,
+    7000,
+    8000
+  ],
+  "m_values": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "hero_checkpoint": 300,
+  "cluster_checkpoint_used": 300
+}

@@ -1,0 +1,14 @@
+torch>=2.1.0
+transformers>=4.40.0
+huggingface_hub>=0.20.0
+
+# Optional (Linux + CUDA, e.g. A100/Colab): Flash Attention 2 for faster attention.
+# pip install flash-attn --no-build-isolation
+# If not installed, model_loader falls back to PyTorch SDPA automatically.
+accelerate>=0.27.0
+numpy>=1.24.0
+scipy>=1.11.0
+tqdm>=4.66.0
+safetensors>=0.4.0
+scikit-learn>=1.3.0
+matplotlib>=3.8.0
