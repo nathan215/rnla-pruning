@@ -1,0 +1,39 @@
+# Copy to config.yaml (gitignored) and fill in. config.yaml holds personal data;
+# never commit it.
+
+profile:
+  name: ""
+  email: ""
+  phone: ""
+  location: ""
+  links:
+    linkedin: ""
+    github: "https://github.com/nathan215"
+    portfolio: ""
+  # Master resume: the superset of everything you've done. Tailoring selects
+  # and rephrases from this — it never invents.
+  master_resume: profile/master_resume.yaml
+
+search:
+  terms: ["machine learning engineer", "data scientist"]
+  locations: ["remote"]
+  remote_ok: true
+  sites: ["indeed", "google", "linkedin"]   # JobSpy site names; LinkedIn used sparingly
+  results_per_scan: 100
+
+filters:
+  must_have_any: []          # keep job if any keyword matches
+  exclude_keywords: []       # drop job if any matches (e.g. "clearance required")
+  min_score: 0.6             # LLM/embedding match threshold for the shortlist
+
+tailoring:
+  model: claude-sonnet-5     # cheap enough per-job; bump for final drafts
+  cover_letter: true
+
+apply:
+  require_review: true       # never submit without an explicit click
+  daily_limit: 15            # hard cap on submissions per day
+
+tracking:
+  db_path: data/jobpilot.sqlite3
+  gmail_polling: false       # Phase 5

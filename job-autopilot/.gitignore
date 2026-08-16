@@ -1,0 +1,13 @@
+# Personal data — never commit
+config.yaml
+profile/
+data/
+output/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
