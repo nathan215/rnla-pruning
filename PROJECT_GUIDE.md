@@ -6,7 +6,7 @@ This guide keeps the repository runnable with a minimal workflow.
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
