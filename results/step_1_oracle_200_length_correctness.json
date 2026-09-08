@@ -82,5 +82,5 @@
   },
   "note_correct_truncated": "Branches marked correct but truncated: 18 (unusual; possible edge case or grading vs partial output).",
   "missing_or_failed_loads": [],
-  "output_path": "C:\\Users\\natha\\OneDrive - Johns Hopkins\\RA Project\\results\\step_1_oracle_200_length_correctness.json"
+  "output_path": "results/step_1_oracle_200_length_correctness.json"
 }

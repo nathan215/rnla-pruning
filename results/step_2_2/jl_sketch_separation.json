@@ -12,5 +12,5 @@
   ],
   "logreg_cv_roc_auc_mean": 0.6538077282305009,
   "note": "AUC~0.5 means not linearly separable in sketch space; AUC>0.7 suggests some separation. This is a coarse probe, not a causal claim.",
-  "figure": "C:\\Users\\natha\\OneDrive - Johns Hopkins\\RA Project\\results\\step_2_2\\jl_sketch_pca2d.png"
+  "figure": "results/step_2_2/jl_sketch_pca2d.png"
 }
